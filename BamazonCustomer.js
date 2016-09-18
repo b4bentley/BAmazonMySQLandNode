@@ -73,24 +73,37 @@ function userPromptPurchase(){
 
             //Queries the database for the desired id and qty
         startConnection.query("SELECT * FROM Products WHERE ?", [{itemID: answer.id}], function(err, data) {
-                if (err) throw err;
+            if (err) throw err;
                 //console check to see if the data was being received from query result
                 //console.log(data);
 
-                if(data[0].stockQuantity < answer.qty){
+            if(data[0].stockQuantity < answer.qty){
                     //check to see if the check works
                     //console.log("made it the if statement true");
-                    console.log("Sorry not enough qty in stock \n");
-                    console.log("Please select another product id or lower quantity");
-                    userPromptPurchase();
-                }else{
+
+                console.log("Sorry insufficient quantity! \n");
+                console.log("Please select another product ID or lower quantity of the desired ID \n");
+
+                userPromptPurchase();
+            }else{
                     //check if you made it past the check
-                    console.log('success');
-                }
+                    //console.log('success');
+                                    //if quantity exists updates database
+                var newQty = data[0].stockQuantity - answer.qty;
+                var totalCost = data[0].price * answer.id;
+
+                startConnection.query('UPDATE products SET stockQuantity = ? WHERE itemID = ?', [newQty, answer.id], function(err, results) {
+                        if(err) {
+                            throw err;
+                        } else {
+                //test the new qty and totalcost
+                console.log("new qty: " + newQty);
+                console.log("new totalcost: " + totalCost);
+                 startConnection.end();
+                   } 
+                });
+
+            }
         });
-
-
     });
 };
-
-// startConnection.end();
